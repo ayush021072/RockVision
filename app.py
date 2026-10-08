@@ -528,25 +528,47 @@ def analyze_image(
 # SIDEBAR
 # ============================================================
 
-st.sidebar.header(
-    "⚙️ Analysis Settings"
-)
+# ============================================================
+# ANALYSIS SETTINGS
+# ============================================================
 
-confidence_threshold = st.sidebar.slider(
-    "Confidence Threshold",
-    min_value=0.30,
-    max_value=0.95,
-    value=0.65,
-    step=0.01
-)
+with st.sidebar:
 
-mask_threshold = st.sidebar.slider(
-    "Mask Threshold",
-    min_value=0.10,
-    max_value=0.90,
-    value=0.50,
-    step=0.05
-)
+    st.header("⚙️ Analysis Settings")
+
+    st.markdown("### 🎯 Detection")
+
+    confidence_threshold = st.slider(
+        "Confidence Threshold",
+        min_value=0.30,
+        max_value=0.95,
+        value=0.65,
+        step=0.01,
+        help="Only detections with confidence equal to or above this value are included."
+    )
+
+    st.caption(
+        f"Current confidence: **{confidence_threshold:.2f}**"
+    )
+
+    st.markdown("### 🎭 Segmentation")
+
+    mask_threshold = st.slider(
+        "Mask Threshold",
+        min_value=0.10,
+        max_value=0.90,
+        value=0.50,
+        step=0.05,
+        help="Controls how the predicted mask is converted into a binary rock mask."
+    )
+
+    st.caption(
+        f"Current mask threshold: **{mask_threshold:.2f}**"
+    )
+
+    st.info(
+        "Recommended confidence threshold: **0.65**"
+    )
 
 st.sidebar.info(
     "Recommended quantitative confidence threshold: 0.65"
