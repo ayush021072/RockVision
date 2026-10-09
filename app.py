@@ -887,6 +887,12 @@ if uploaded_file is not None:
 # ROCK SIZE DISTRIBUTION — HISTOGRAM
 # ============================================================
 
+
+            
+# ============================================================
+# ROCK SIZE DISTRIBUTION — HISTOGRAM
+# ============================================================
+
 st.subheader("Rock Size Distribution")
 
 if (
