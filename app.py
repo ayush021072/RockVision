@@ -27,30 +27,146 @@ st.set_page_config(
 # CUSTOM CSS
 # ============================================================
 
+
+# ============================================================
+# CUSTOM CSS — ROCKVISION RESEARCH INTERFACE
+# ============================================================
+
 st.markdown("""
 <style>
-
-.main-title {
-    font-size: 42px;
-    font-weight: 800;
-    margin-bottom: 0px;
+/* Overall typography and spacing */
+.stApp {
+    font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-.subtitle {
-    font-size: 18px;
-    color: #666666;
-    margin-top: 0px;
+.block-container {
+    max-width: 1440px;
+    padding-top: 2.2rem;
+    padding-bottom: 3rem;
 }
 
-.metric-box {
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #dddddd;
-    background-color: #fafafa;
+/* Restrained research-style header */
+.rv-eyebrow {
+    color: #a7a99a;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin-bottom: 0.65rem;
 }
 
+.rv-title {
+    font-size: clamp(2.1rem, 4vw, 3.1rem);
+    line-height: 1.12;
+    font-weight: 650;
+    letter-spacing: -0.045em;
+    margin: 0;
+}
+
+.rv-subtitle {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: #a9adb5;
+    margin-top: 0.7rem;
+    max-width: 760px;
+}
+
+.rv-rule {
+    border: 0;
+    border-top: 1px solid rgba(145, 150, 155, 0.25);
+    margin: 1.6rem 0 1.8rem 0;
+}
+
+.rv-section-label {
+    color: #a7a99a;
+    font-size: 0.76rem;
+    font-weight: 650;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+}
+
+.rv-section-title {
+    font-size: 1.45rem;
+    font-weight: 620;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem 0;
+}
+
+.rv-muted {
+    color: #a9adb5;
+    line-height: 1.65;
+    font-size: 0.94rem;
+}
+
+/* Subtle upload and metric containers */
+[data-testid="stFileUploader"] {
+    border-radius: 10px;
+}
+
+[data-testid="stMetric"] {
+    border: 1px solid rgba(145, 150, 155, 0.25);
+    border-radius: 9px;
+    padding: 1rem 1.05rem;
+    background: rgba(145, 150, 155, 0.045);
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.85rem;
+}
+
+[data-testid="stMetricValue"] {
+    font-weight: 650;
+}
+
+/* Buttons */
+.stDownloadButton button,
+.stButton button {
+    border-radius: 7px;
+    font-weight: 550;
+    min-height: 2.65rem;
+    transition: border-color 0.15s ease;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(145, 150, 155, 0.18);
+}
+
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    letter-spacing: -0.02em;
+}
+
+/* Data tables */
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(145, 150, 155, 0.22);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Footer */
+.rv-footer {
+    color: #92969e;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    padding-top: 0.5rem;
+}
+
+/* Small screens */
+@media (max-width: 700px) {
+    .block-container {
+        padding: 1.3rem 1rem 2rem 1rem;
+    }
+
+    .rv-title {
+        font-size: 2.1rem;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 
 # ============================================================
@@ -58,18 +174,17 @@ st.markdown("""
 # ============================================================
 
 st.markdown(
-    '<div class="main-title">🪨 RockVision</div>',
+    '<div class="rv-eyebrow">Mining Engineering · Research Tool</div>'
+    '<h1 class="rv-title">RockVision</h1>'
+    '<p class="rv-subtitle">'
+    'Rock-fragmentation analysis using instance segmentation. '
+    'Inspect individual rock boundaries, estimate fragment sizes, '
+    'and export measurements for further analysis.'
+    '</p>'
+    '<hr class="rv-rule">',
     unsafe_allow_html=True
 )
 
-st.markdown(
-    '<div class="subtitle">'
-    'AI-Based Rock Segmentation & Size Analysis using Mask R-CNN'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-st.write("")
 
 
 # ============================================================
@@ -570,10 +685,6 @@ with st.sidebar:
         "Recommended confidence threshold: **0.65**"
     )
 
-st.sidebar.info(
-    "Recommended quantitative confidence threshold: 0.65"
-)
-
 
 # ============================================================
 # IMAGE UPLOAD
@@ -931,48 +1042,72 @@ if uploaded_file is not None:
         )
 
 
+
 # ============================================================
 # INITIAL SCREEN
 # ============================================================
 
 else:
 
-    st.info(
-        "👆 Upload a JPG, JPEG, PNG, or WEBP image "
-        "to start rock analysis."
+    st.markdown(
+        '<div class="rv-section-label">Getting started</div>'
+        '<h2 class="rv-section-title">Analyse a rock image</h2>'
+        '<p class="rv-muted">'
+        'Upload a photograph of a rock pile or fragmented rock surface. '
+        'RockVision will identify individual fragments and calculate '
+        'image-based measurements from the predicted masks.'
+        '</p>',
+        unsafe_allow_html=True
     )
 
-    st.markdown("""
-    ### 🚀 What RockVision Can Do
+    st.write("")
 
-    **RockVision** uses a trained Mask R-CNN model to perform:
+    left, right = st.columns([1.25, 1], gap="large")
 
-    - 🪨 Rock instance segmentation
-    - 🔢 Automatic rock counting
-    - 🎯 Confidence estimation
-    - 📦 Bounding-box detection
-    - 📐 Individual rock area calculation
-    - 📏 Equivalent diameter calculation
-    - 📍 Rock centroid calculation
-    - 📊 Rock coverage calculation
-    - 📈 Rock size distribution
-    - 📉 D10, D25, D50, D75, D80 and D90 analysis
-    - 📥 CSV export
-    - 🖼️ Segmented image export
+    with left:
+        with st.container(border=True):
+            st.markdown("#### Analysis workflow")
+            st.markdown(
+                "1. **Upload** a JPG, PNG, JPEG or WEBP image.\n\n"
+                "2. **Segment** individual rocks with the trained "
+                "Mask R-CNN model.\n\n"
+                "3. **Review** detections, confidence scores and "
+                "rock-wise measurements.\n\n"
+                "4. **Export** the segmented image and measurement CSV."
+            )
 
-    **Note:** Measurements are currently reported in pixels.
-    A physical scale/calibration reference is required to convert
-    measurements into mm or cm.
-    """)
+    with right:
+        with st.container(border=True):
+            st.markdown("#### Measurements available")
+            st.markdown(
+                "- Detected rock count\n"
+                "- Individual mask area and equivalent diameter\n"
+                "- Bounding-box dimensions and centroid coordinates\n"
+                "- Percentage of image area covered by detected rocks\n"
+                "- Size percentiles: D10, D25, D50, D75, D80 and D90"
+            )
+
+    st.write("")
+    st.caption(
+        "Measurement note: results are currently reported in pixels. "
+        "Physical dimensions in mm or cm require a known scale and "
+        "appropriate image calibration."
+    )
+
 
 
 # ============================================================
 # FOOTER
 # ============================================================
 
+
 st.divider()
 
-st.caption(
-    "RockVision | AI-Based Rock Segmentation & Size Analysis "
-    "| IIT (BHU) Mining Engineering BTP"
+st.markdown(
+    '<div class="rv-footer">'
+    'RockVision · Mask R-CNN instance segmentation<br>'
+    'Mining Engineering BTP · IIT (BHU), Varanasi'
+    '</div>',
+    unsafe_allow_html=True
 )
+
