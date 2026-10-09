@@ -882,41 +882,56 @@ if uploaded_file is not None:
             )
 
 
-            # =================================================
-            # SIZE DISTRIBUTION
-            # =================================================
+           
+# ============================================================
+# ROCK SIZE DISTRIBUTION — HISTOGRAM
+# ============================================================
 
-            st.subheader(
-                "📈 Rock Size Distribution"
-            )
+st.subheader("Rock Size Distribution")
 
-            diameters = (
-                df[
-                    "Equivalent Diameter (px)"
-                ]
-            )
+if (
+    "df_measurements" in locals()
+    and not df_measurements.empty
+    and "Equivalent Diameter (px)" in df_measurements.columns
+):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    diameters = pd.to_numeric(
+        df_measurements["Equivalent Diameter (px)"],
+        errors="coerce"
+    ).dropna()
+
+    diameters = diameters[diameters > 0]
+
+    if len(diameters) > 0:
+        fig, ax = plt.subplots(figsize=(10, 4.5))
+
+        ax.hist(
+            diameters,
+            bins=min(15, max(5, len(diameters))),
+            edgecolor="white",
+            linewidth=0.7
+        )
+
+        ax.set_title("Distribution of Detected Rock Diameters")
+        ax.set_xlabel("Equivalent Diameter (pixels)")
+        ax.set_ylabel("Number of Rocks")
+        ax.grid(axis="y", alpha=0.25)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        fig.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
+
+    else:
+        st.info("No valid rock diameter measurements are available.")
+else:
+    st.info("Upload an image and run the analysis to generate the size distribution.")
 
 
-            hist_data = np.histogram(
-                diameters,
-                bins=min(
-                    10,
-                    max(3, len(diameters))
-                )
-            )
-
-
-            chart_df = pd.DataFrame({
-                "Equivalent Diameter (px)":
-                    diameters
-            })
-
-
-            st.bar_chart(
-                chart_df,
-                x="Equivalent Diameter (px)"
-            )
-
+            
 
             # =================================================
             # STATISTICAL ANALYSIS
