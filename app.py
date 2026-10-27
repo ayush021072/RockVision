@@ -1081,22 +1081,6 @@ else:
             d80 = float(diameters.quantile(0.80))
             d90 = float(diameters.quantile(0.90))
 
-            st.markdown("### Size percentiles")
-
-            p1, p2, p3, p4, p5, p6 = st.columns(6)
-
-            p1.metric("D10", f"{d10:.2f} px")
-            p2.metric("D25", f"{d25:.2f} px")
-            p3.metric("D50", f"{d50:.2f} px")
-            p4.metric("D75", f"{d75:.2f} px")
-            p5.metric("D80", f"{d80:.2f} px")
-            p6.metric("D90", f"{d90:.2f} px")
-
-            st.caption(
-                "D-values are percentiles of the detected equivalent "
-                "diameters in this image. They are not calibrated "
-                "physical particle sizes."
-            )
 
             # ====================================================
             # STATISTICAL ANALYSIS
