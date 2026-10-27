@@ -414,6 +414,183 @@ def analyze_image(
             (40, 40, 40),
             1
         )
+            # ========================================================
+    # CREATE SEGMENTATION VISUALIZATION WITH ROCK NUMBERING
+    # ========================================================
+
+    result_image = image_np.copy()
+    overlay = image_np.copy()
+
+    # Use a consistent set of colors for individual rocks.
+    palette = [
+        (53, 190, 145),
+        (244, 166, 66),
+        (94, 156, 238),
+        (220, 100, 118),
+        (180, 135, 230),
+        (218, 198, 85),
+        (75, 190, 205),
+        (230, 135, 75),
+    ]
+
+    # Draw the segmentation masks.
+    for i, mask in enumerate(binary_masks):
+
+        if not mask.any():
+            continue
+
+        color = np.array(
+            palette[i % len(palette)],
+            dtype=np.float32
+        )
+
+        overlay[mask] = (
+            0.48 * overlay[mask].astype(np.float32)
+            + 0.52 * color
+        ).astype(np.uint8)
+
+    # Blend the original image with the colored masks.
+    result_image = cv2.addWeighted(
+        image_np,
+        0.50,
+        overlay,
+        0.50,
+        0
+    )
+
+    # Draw bounding boxes and rock numbers.
+    # Rock IDs match the order in the measurements table.
+
+    rock_id = 0
+
+    for score, box, mask in zip(
+        scores,
+        boxes,
+        binary_masks
+    ):
+
+        # Skip empty masks so numbering stays consistent.
+        if not mask.any():
+            continue
+
+        rock_id += 1
+
+        x1, y1, x2, y2 = map(
+            int,
+            box
+        )
+
+        color = palette[
+            (rock_id - 1) % len(palette)
+        ]
+
+        # Draw bounding box.
+        cv2.rectangle(
+            result_image,
+            (x1, y1),
+            (x2, y2),
+            color,
+            2
+        )
+
+        # Find the centre of the actual segmentation mask.
+        ys, xs = np.where(mask)
+
+        center_x = int(np.mean(xs))
+        center_y = int(np.mean(ys))
+
+        # Label displayed directly on the rock.
+        label = str(rock_id)
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        # Scale the label according to image dimensions.
+        font_scale = max(
+            0.65,
+            min(image_np.shape[1] / 1800, 1.5)
+        )
+
+        thickness = 2
+
+        (text_width, text_height), baseline = (
+            cv2.getTextSize(
+                label,
+                font,
+                font_scale,
+                thickness
+            )
+        )
+
+        # Place the number at the mask centroid.
+        text_x = center_x - text_width // 2
+        text_y = center_y + text_height // 2
+
+        # Keep the label within the image.
+        text_x = max(
+            2,
+            min(
+                text_x,
+                image_np.shape[1] - text_width - 2
+            )
+        )
+
+        text_y = max(
+            text_height + 4,
+            min(
+                text_y,
+                image_np.shape[0] - baseline - 2
+            )
+        )
+
+        # Draw a dark background behind the number.
+        padding = 6
+
+        cv2.rectangle(
+            result_image,
+            (
+                text_x - padding,
+                text_y - text_height - padding
+            ),
+            (
+                text_x + text_width + padding,
+                text_y + baseline + padding
+            ),
+            (25, 28, 32),
+            thickness=-1
+        )
+
+        # Write the number in white.
+        cv2.putText(
+            result_image,
+            label,
+            (text_x, text_y),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
+        )
+
+        # Display confidence beside the bounding box.
+        confidence_label = f"{score:.2f}"
+
+        conf_y = max(
+            20,
+            y1 - 7
+        )
+
+        cv2.putText(
+            result_image,
+            confidence_label,
+            (x1, conf_y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            color,
+            2,
+            cv2.LINE_AA
+        )
+
+    
 
     return (
         result_image,
