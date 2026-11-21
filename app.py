@@ -870,7 +870,7 @@ else:
     st.image(
         image,
         caption=f"Uploaded image: {uploaded_file.name}",
-        use_container_width=True
+        width="stretch"
     )
 
     try:
@@ -952,7 +952,7 @@ else:
 
     st.image(
         result_image,
-        use_container_width=True
+        width="stretch"
     )
 
     result_buffer = io.BytesIO()
@@ -991,7 +991,7 @@ else:
 
         st.dataframe(
             df.round(3),
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
 
@@ -1052,7 +1052,7 @@ else:
 
                 st.pyplot(
                     fig_histogram,
-                    use_container_width=True
+                    width="stretch"
                 )
 
                 plt.close(fig_histogram)
@@ -1065,7 +1065,7 @@ else:
 
                 st.pyplot(
                     fig_cumulative,
-                    use_container_width=True
+                    width="stretch"
                 )
 
                 plt.close(fig_cumulative)
@@ -1129,7 +1129,7 @@ else:
 
             st.dataframe(
                 summary_df.round(3),
-                use_container_width=True,
+                width="stretch",
                 hide_index=True
             )
 
@@ -1145,7 +1145,7 @@ else:
 
             st.pyplot(
                 fig_area,
-                use_container_width=True
+                width="stretch"
             )
 
             plt.close(fig_area)
@@ -1202,51 +1202,46 @@ else:
 
 # ========================================================
 # ROCK AREA VS CUMULATIVE PERCENTAGE
-# ========================================================
+# Render only after an image has been analyzed and the measurements dataframe exists.
 
 st.subheader("Rock Area vs Cumulative Percentage")
 
-if not df.empty and "Area (pixels²)" in df.columns:
+if uploaded_file is not None and "df" in locals() and not df.empty and "Mask Area (px²)" in df.columns:
     rock_areas = np.sort(
-        df["Area (pixels²)"].dropna().to_numpy()
+        pd.to_numeric(df["Mask Area (px²)"], errors="coerce").dropna().to_numpy()
     )
+    rock_areas = rock_areas[rock_areas > 0]
 
     if len(rock_areas) > 0:
         cumulative_percentage = (
-            np.arange(1, len(rock_areas) + 1)
-            / len(rock_areas)
+            np.arange(1, len(rock_areas) + 1) / len(rock_areas)
         ) * 100
 
         fig, ax = plt.subplots(figsize=(10, 5))
-
         ax.plot(
             rock_areas,
             cumulative_percentage,
             marker="o",
             markersize=4,
-            linewidth=2
+            linewidth=2,
         )
-
         ax.set_xlabel("Rock area (pixels²)")
         ax.set_ylabel("Cumulative percentage of rocks (%)")
         ax.set_title("Cumulative Rock Area Distribution")
         ax.set_ylim(0, 100)
         ax.grid(True, alpha=0.3)
-
-        st.pyplot(fig)
+        st.pyplot(fig, width="stretch")
         plt.close(fig)
-
         st.caption(
-            "For any area on the x-axis, the y-axis shows "
-            "the percentage of detected rocks with an area "
-            "less than or equal to that value."
+            "For any area on the x-axis, the y-axis shows the percentage of detected rocks "
+            "with an area less than or equal to that value."
         )
     else:
         st.info("No valid rock-area measurements are available.")
 else:
-    st.info("Rock-area measurements are not available.")
+    st.info("Rock-area measurements will appear after you upload and analyze an image.")
 
-# ============================================================
+
 # FOOTER
 # ============================================================
 
