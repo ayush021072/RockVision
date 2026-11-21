@@ -801,6 +801,9 @@ uploaded_file = st.file_uploader(
     type=["jpg", "jpeg", "png", "webp"]
 )
 
+# Initialize analysis dataframe before any conditional image processing.
+df = None
+
 
 # ============================================================
 # INITIAL SCREEN
@@ -1206,7 +1209,7 @@ else:
 
 st.subheader("Rock Area vs Cumulative Percentage")
 
-if uploaded_file is not None and "df" in locals() and not df.empty and "Mask Area (px²)" in df.columns:
+if uploaded_file is not None and df is not None and not df.empty and "Mask Area (px²)" in df.columns:
     rock_areas = np.sort(
         pd.to_numeric(df["Mask Area (px²)"], errors="coerce").dropna().to_numpy()
     )
