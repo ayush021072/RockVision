@@ -159,6 +159,9 @@ def load_model():
         weights_backbone=None
     )
 
+    # Cap detections per image to reduce memory pressure on dense rock scenes.
+    model.roi_heads.detections_per_img = 50
+
     # Replace box predictor for two classes:
     # 0 = background, 1 = rock
 
@@ -233,29 +236,50 @@ def analyze_image(
 
     image_height, image_width = image_np.shape[:2]
 
-    image_tensor = F.to_tensor(image_rgb).to(device)
+    # Reduce inference resolution for memory safety on dense images. Measurements
+    # and visual output are still mapped back to the original image resolution.
+    max_inference_side = 1200
+    scale = min(1.0, max_inference_side / max(image_width, image_height))
+    if scale < 1.0:
+        inference_width = max(1, int(round(image_width * scale)))
+        inference_height = max(1, int(round(image_height * scale)))
+        inference_image = image_rgb.resize((inference_width, inference_height), Image.Resampling.BILINEAR)
+    else:
+        inference_image = image_rgb
+        inference_width, inference_height = image_width, image_height
 
-    # Run model inference.
+    image_tensor = F.to_tensor(inference_image).to(device)
 
+
+    # Run model inference with reduced resolution to limit memory use.
     with torch.inference_mode():
         prediction = model([image_tensor])[0]
+
 
     scores = prediction["scores"].detach().cpu().numpy()
     boxes = prediction["boxes"].detach().cpu().numpy()
     masks = prediction["masks"].detach().cpu().numpy()
     labels = prediction["labels"].detach().cpu().numpy()
 
-    # Filter detections by confidence and rock class.
-
-    keep = (
-        (scores >= confidence_threshold)
-        &
-        (labels == ROCK_CLASS)
-    )
-
+    # Filter early, before resizing masks to original image dimensions.
+    keep = (scores >= confidence_threshold) & (labels == ROCK_CLASS)
     scores = scores[keep]
     boxes = boxes[keep]
-    masks = masks[keep, 0]
+    masks = masks[keep]
+
+    # Map boxes and masks back to original image dimensions.
+    if scale < 1.0:
+        box_scale_x = image_width / inference_width
+        box_scale_y = image_height / inference_height
+        boxes[:, [0, 2]] *= box_scale_x
+        boxes[:, [1, 3]] *= box_scale_y
+        masks = np.asarray([
+            cv2.resize(mask[0], (image_width, image_height), interpolation=cv2.INTER_LINEAR)[None, ...]
+            for mask in masks
+        ]) if len(masks) else masks
+
+    # Masks are now already filtered and restored to original resolution.
+    masks = masks[:, 0]
 
     # Convert probability masks to binary masks.
 
