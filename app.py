@@ -1277,10 +1277,4 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown(
-    '<div class="rv-footer">'
-    'RockVision · Mask R-CNN instance segmentation<br>'
-    'Mining Engineering BTP · IIT (BHU), Varanasi'
-    '</div>',
-    unsafe_allow_html=True
-)
+
